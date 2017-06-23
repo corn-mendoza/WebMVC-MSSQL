@@ -31,8 +31,16 @@ namespace WebMVC_MSSQL
             // Add framework services.
             services.AddMvc();
 
-            services.AddDbContext<ReleaseContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("ReleaseContext")));
+            CFEnvironmentVariables env = new CFEnvironmentVariables(Configuration);
+            var _connect = env.getConnectionStringForDbService("user-provided", "sqlserverdb");
+            if (_connect != null)
+            {
+                Console.WriteLine($"Using connection string '{_connect}' for users");
+            }
+            else
+                _connect = Configuration.GetConnectionString("ReleaseContext");
+
+            services.AddDbContext<ReleaseContext>(options => options.UseSqlServer(_connect));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,13 +59,9 @@ namespace WebMVC_MSSQL
                 app.UseExceptionHandler("/Home/Error");
             }
 
-
             // Perform some database initialisation.
-
             using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-
             {
-
                 var dbContext = serviceScope.ServiceProvider.GetService<ReleaseContext>();
 
                 // Database.Migrate() will perform a migration of the database. This will ensure that the target database
@@ -77,19 +81,7 @@ namespace WebMVC_MSSQL
                 // If access to CF database is not possible, point to a local database first.
 
                 dbContext.Database.Migrate();
-
-                //if (env.IsDevelopment())
-
-                //{
-
-                //    // Ensure that we have some dummy data when we're performing development.
-
-                //    dbContext.EnsureSeedData();
-
-                //}
-
             }
-
 
             app.UseStaticFiles();
 
