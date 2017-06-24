@@ -1,0 +1,5 @@
+﻿appications:
+  - name: webmvc-sql
+    buildpack: dotnet_core_buildpack
+    services:
+        sqlserverdb
