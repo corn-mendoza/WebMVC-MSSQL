@@ -1,5 +1,5 @@
 ﻿---
-appications:
+applications:
 - name: webmvc-sql
   buildpack: dotnet_core_buildpack
   services:
